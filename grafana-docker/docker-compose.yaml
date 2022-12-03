@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  grafana:
+    image: grafana/grafana:8.2.2
+    # 재시작 옵션
+    # unless-stopped: 서버(ex ec2가 재시작 되더라도 컨테이너가 재시작 된다.)
+    restart: unless-stopped
+    environment:
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+    ports:
+    - 3000:3000
+    volumes:
+    # :ro 읽기전용. 그라파나 설정파일
+    # 파일 바인딩의 경우, docker host에 파일이 존재해야 한다. 그렇지 않으면 docker host에 디렉토리를 생성한다.
+
+    # grafana의 경우 설정파일을 볼륨으로 공유해 수정하는 것을 권장하지 않는다. https://github.com/grafana/grafana/issues/41481
+    # 아래 볼륨공유된 파일을 보면 빈 파일이다.
+      # - ${PWD}/files/grafana.ini:/etc/grafana/grafana.ini:ro
+    # 로컬 데이터 저장경로
+      - grafana-data:/var/lib/grafana
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "8m"
+        max-file: "10"
+
+volumes:
+  grafana-data: {}
