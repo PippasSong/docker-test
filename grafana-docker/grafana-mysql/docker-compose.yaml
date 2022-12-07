@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  db: 
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: grafana
+      MYSQL_DATABASE: grafana
+      MYSQL_USER: grafana
+      MYSQL_PASSWORD: grafana
+    volumes:
+      - mysql-data:/var/lib/mysql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "8m"
+        max-file: "10"
+  grafana:
+    depends_on:
+      - db
+    image: grafana/grafana:8.2.2
+    restart: unless-stopped
+    environment:
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+      GF_DATABASE_TYPE: mysql
+      # 서비스 이름을 사용할 수 있다.
+      GF_DATABASE_HOST: db:3306
+      GF_DATABASE_NAME: grafana
+      GF_DATABASE_USER: grafana
+      GF_DATABASE_PASSWORD: grafana
+
+    ports:
+    - 3000:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "8m"
+        max-file: "10"
+
+volumes:
+  mysql-data: {}
+  grafana-data: {}
